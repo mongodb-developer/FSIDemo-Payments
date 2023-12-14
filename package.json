@@ -1,0 +1,28 @@
+{
+    "name": "server",
+    "version": "1.0.0",
+    "description": "FSI MongoDB Demo",
+    "main": "server.js",
+    "scripts": {
+        "start": "nodemon -r dotenv/config server.js",
+        "server:dev": "nodemon server.js",
+        "server:prod": "set NODE_ENV=production&&node server.js",
+        "server:prod:mac": "export NODE_ENV=production&&node server.js"
+    },
+    "author": "Me",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^5.0.0",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "cryptr": "^6.0.3",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "mongodb": "6.0.0",
+        "mongodb-client-encryption": "^6.0.0",
+        "socket.io": "^4.2.0"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.20"
+    }
+}

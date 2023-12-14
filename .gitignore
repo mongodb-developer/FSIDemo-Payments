@@ -1,0 +1,7 @@
+.DS_Store
+.env
+mongocryptd.pid
+logs
+mongo_*
+node_modules
+docs
