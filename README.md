@@ -54,6 +54,7 @@ The Stack is :
 
 Clone the repo:
 ```
+git clone https://github.com/mongodb-developer/FSIDemo-Payments.git
 ```
 
 Install the repo:
