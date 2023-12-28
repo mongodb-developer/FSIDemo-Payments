@@ -40,6 +40,7 @@ async function preWarmConnection(){
 }
 
 preWarmConnection();
+
 // docs/FSI - Payments Demo Architecture.txt
 
 /**
@@ -201,6 +202,22 @@ async function add(userId, transaction) {
             }
         };
 
+          // Update transaction with receiver and sender details
+          transaction.referenceData = {
+            ...transaction.referenceData,
+            receiver: {
+                ...transaction.referenceData.receiver,
+                name: receiverAccount.user.username,
+                accountNumber: receiverAccount.accountNumber
+            },
+            sender: {
+                accountId: senderAccount._id,
+                name: senderAccount.user.username,
+                userId: user._id,
+                accountNumber: senderAccount.accountNumber
+            }
+        };
+
         // Insert the transaction into the collection
         const addedTransaction = await collection.insertOne(transaction, { session });
         transaction.txId = addedTransaction.insertedId;
@@ -224,6 +241,13 @@ async function add(userId, transaction) {
     }
 }
 
+function cleanTransaction(transaction) {
+   delete transaction.referenceData.sender.accountNumber;
+    delete transaction.referenceData.receiver.accountNumber;
+    delete transaction.details;
+
+    return transaction;
+}
 
 // status update
 /**
@@ -246,6 +270,21 @@ async function update(transactionId, steps) {
         if (isCompleted) {
             // Update the status to 'completed' if all steps are completed
             transactionToSave.status = 'completed';
+            //update reciever user
+            let transaction = await collection.findOne({ _id: new ObjectId(transactionId) });
+            const receiver = transaction.referenceData.receiver;
+            const sender = transaction.referenceData.sender;
+            transaction.type = 'incoming';
+            transaction.status = 'completed';
+            
+            transaction = cleanTransaction(transaction);
+
+            // Update users with  transaction details
+            await userService.addTransaction(receiver.userId, transaction)
+            await userService.addTransaction(sender.userId, transaction)
+            
+            
+
         }
 
         // Update the transaction in the collection

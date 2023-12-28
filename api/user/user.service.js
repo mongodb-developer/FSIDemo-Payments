@@ -98,8 +98,10 @@ async function getById(userId) {
  */
 async function getByUsername(username) {
     try {
+        console.log('username', username);
         const { collection } = await dbService.getEncryptedCollection('users', serviceName);
-        const user = await collection.findOne({ username });
+        const user = await collection.findOne({ "username": username });
+        console.log('found user', user.username);
 
         // Remove sensitive data before returning
         return cleanUser(user);
@@ -245,11 +247,30 @@ async function addTransaction(userId, transaction, collection = undefined, sessi
             session = db.session;
         }
 
-        await collection.updateOne(
-            { _id: new ObjectId(userId) },
-            { $push: { recentTransactions: { $each: [transaction], $slice: -10 } } }, // Keeps only the latest 10 transactions
+        console.log(`adding transaction ${transaction._id} for user ${userId}`)
+        //Check if only status update is needed
+       const updateOutcome = await collection.updateOne(
+            { 
+                _id: new ObjectId(userId),
+                "recentTransactions._id": transaction._id
+            },
+            { 
+                $set: { "recentTransactions.$.status": transaction.status }
+            },
             { session }
         );
+
+
+        // If no matching transaction was found, add the new transaction to the beginning of the array
+        if (updateOutcome.modifiedCount === 0) {
+            await collection.updateOne(
+                { _id: new ObjectId(userId) },
+                { $push: { recentTransactions: { $each: [transaction],
+                                                        $sort: { date : -1 },
+                                                        $slice: -10 } } }, // Keeps only the latest 10 transactions
+                { session }
+            );
+        }
 
         if (session && session.inTransaction()) {
             await session.commitTransaction();
@@ -268,6 +289,7 @@ async function addTransaction(userId, transaction, collection = undefined, sessi
         }
     }
 }
+
 
 async function getRecentTransactions(userId) {
     try {
@@ -321,5 +343,6 @@ module.exports = {
     add,
     updateLinkedAccounts,
     addTransaction,
-    getRecentTransactions
+    getRecentTransactions,
+    preWarmConnection
 }

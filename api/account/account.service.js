@@ -23,7 +23,7 @@ const encryptedFieldsMap = {
 async function preWarmConnection(){
     try {
         await Promise.all([dbService.getEncryptedCollection('accounts', serviceName, encryptedFieldsMap), userService.preWarmConnection()])
-        logger.info(`account.service.js-preWarmConnection: pre-warmed ${accounts.length} accounts`);
+        logger.info(`account.service.js-preWarmConnection: pre-warmed accounts`);
     } catch (err) {
         logger.error('account.service.js-preWarmConnection: cannot pre-warm accounts', err);
     }

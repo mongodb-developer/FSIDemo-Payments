@@ -10,6 +10,12 @@ const http = require('http').createServer(app);
 app.use(cookieParser()); // Middleware for parsing cookies
 app.use(express.json()); // Middleware for parsing JSON bodies
 
+// Allow cors
+app.use(cors({
+    origin: ['http://localhost:8080', 'http://localhost:8081', 'http://localhost:8082'],
+    credentials: true // enable set cookie
+}));
+
 // Import routes
 const userRoutes = require('./api/user/user.routes');
 const accountRoutes = require('./api/account/account.routes');

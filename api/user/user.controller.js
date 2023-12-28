@@ -23,6 +23,17 @@ async function getUser(req, res) {
     }
 }
 
+async function getUserByUsername(req, res) {
+    try {
+        if (!req.params.username) throw new Error('Missing username')
+        const user = await userService.getByUsername(req.params.username)
+        res.send(user)
+    } catch (err) {
+        logger.error(`user.controller.js-getUserByUsername: Failed to get user`, err)
+        res.status(500).send({ err: 'Failed to get user' })
+    }
+}
+
 
 /**
  * Asynchronously retrieves a list of users based on query parameters.
@@ -168,6 +179,7 @@ async function updateLinkedAccounts(req, res) {
 module.exports = {
     getUser,
     getUsers,
+    getUserByUsername,
     addUser,
     deleteUser,
     updateUser,
