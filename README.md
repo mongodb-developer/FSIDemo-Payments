@@ -1,7 +1,7 @@
 # MongoDB FSI Payments Demo
 
-This project is built to facilitate a MongoDB payments solution based on our MongoDB for Payments vision:
-
+This project is built to facilitate a MongoDB payments solution based on our MongoDB for [Payments](https://www.mongodb.com/use-cases/payments) vision:
+![Overview](https://webimages.mongodb.com/_com_assets/cms/llcgrv7qgszjis2h7-image2.png?auto=format%252Ccompress)
 
 The Stack is :
 - Node JS microservices server/s
@@ -66,6 +66,7 @@ Setup the .env file:
 ```
 ## Encrytion
 
+# Shared Library file path for queryable encryption
 SHARED_LIB_PATH="<FULL_PATH_TO_LIB>"
 
 # AWS Credentials
@@ -113,7 +114,11 @@ npm  start
 
 ### Test using postman:
  
-Download the following postman project and run the sequence.
+Load `Payments.postman_collection.json` and run the sequence.
+
+### Web UI
+
+N/A yet
 
 ## Desclaimer
 
