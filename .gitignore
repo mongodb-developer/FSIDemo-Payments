@@ -5,3 +5,5 @@ logs
 mongo_*
 node_modules
 docs
+customer-master-key.txt
+api/auth/*
