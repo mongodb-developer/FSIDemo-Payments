@@ -1,0 +1,338 @@
+{
+	"info": {
+		"_postman_id": "1c7fdc6a-19a0-40b8-b7b6-f9047dcbebb8",
+		"name": "Payments",
+		"description": "# 👤 Get started here\n\nThis template demonstrates how to structure endpoints for a user management REST API that contains endpoints for user registration, login, profile management, and more.\n\nUsers created using this API can perform tasks like registering, logging in, and updating their profiles. Users who are assigned an 'admin' role can perform all tasks, including getting a list of all users and deleting user profiles.\n\n### 🔐 Authentication and authorization\n\nYou must have a valid bearer token to use the API added in this template. When you send the `Register` request, you will receive a token in the response. The `Register` request also contains a test script that sets the token in the `accessToken` collection variable so you can reuse it in other requests easily.\n\nTo send the requests in the `Admin` folder, you need to have admin permissions. You can grant yourself admin permissions using the `Register` request by adding a key named \"role\" with \"admin\" as the value in the request body.\n\n## 🔖 How to use this template?\n\n#### **Step 1: Send the requests**\n\nCheck out the different parts of the requests, including the request body, documentation, headers, tests, and path parameters. Send the requests to view the response returned by the API.\n\nYou can explore the API in the order given below to understand the workflow without running into any hiccups:\n\n`Register → Log in → Get profile → Update profile → Change user role → Get all users → Delete user`\n\n#### **Step 2: Customize the requests**\n\nAdd your API’s base URL in the `url` collection variable. Update the request body wherever needed and send the requests to test your API.\n\n#### **Step 3: Continue building the collection**\n\nCreate requests in this collection to test the new API endpoints you develop.\n\n## 💡Related templates\n\n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=18238f01-dfc7-4a9a-9330-1f8e7c928daf)  \n[Payment gateway and processing API](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=2ef318a1-e16c-4761-b8dc-1ccb1167ee8d&sourceTemplateId=18238f01-dfc7-4a9a-9330-1f8e7c928daf)  \n[File storage API](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=45d1f394-35cd-44fa-aecc-fa329a7752a3&sourceTemplateId=18238f01-dfc7-4a9a-9330-1f8e7c928daf)  \n[Push notification API](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=de8244f9-136a-4a6a-a695-d4516fd20308&sourceTemplateId=18238f01-dfc7-4a9a-9330-1f8e7c928daf)  \n[Search API](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=da8172d0-679b-4173-9104-0ecef2c32cd3&sourceTemplateId=18238f01-dfc7-4a9a-9330-1f8e7c928daf)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15728449"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "RegisterUser1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseData = pm.response.json();",
+									"pm.environment.set(\"userId1\", responseData._id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n{\n    \"username\": \"{{$randomUserName}}\",\n    \"password\": \"{{$randomPassword}}\",\n    \"email\": \"{{$randomEmail}}\",\n    \"imgUrl\": \"{{$randomImageUrl}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/user/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"register"
+							]
+						},
+						"description": "This request creates a new user.\n\n**Note:** If you want to add yourself as an admin, you can add a key named \"role\" and set the value \"admin\" as a part of the request body.\n\nThis request also has a test script that sets the authorization token received in the response in the `accessToken` collection variable. This helps you reuse the token in other requests easily."
+					},
+					"response": []
+				},
+				{
+					"name": "RegisterUser2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseData = pm.response.json();",
+									"pm.environment.set(\"userId2\", responseData._id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n{\n    \"username\": \"{{$randomUserName}}\",\n    \"password\": \"{{$randomPassword}}\",\n    \"email\": \"{{$randomEmail}}\",\n    \"imgUrl\": \"{{$randomImageUrl}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/user/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"register"
+							]
+						},
+						"description": "This request creates a new user.\n\n**Note:** If you want to add yourself as an admin, you can add a key named \"role\" and set the value \"admin\" as a part of the request body.\n\nThis request also has a test script that sets the authorization token received in the response in the `accessToken` collection variable. This helps you reuse the token in other requests easily."
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contains requests related to creating a user profile and logging in.",
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "addAccountForUser1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseData = pm.response.json();",
+									"pm.environment.set(\"account1\", responseData.account.accountId);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\" : \"{{userId1}}\",\n    \"accountDetails\" :  {\n            \"accountNumber\": \"{{$randomBankAccount}}\", // Encrypted\n            \"accountType\": \"{{$randomBankAccountName}}\",\n            \"balance\": {{$randomInt}},\n            \"limitations\": {\n                 \"withdrawalLimit\": {{$randomInt}},\n                \"transferLimit\": {{$randomInt}},\n                \"otherLimitations\": \"No Limit\"\n\n            },\n            \"securityTags\": [],\n            \"details\": {\n                \"IBAN\" : \"{{$randomBankAccountIban}}\"\n            }// Encrypted string of sensitive data\n        }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/account",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addAccountForUser2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseData = pm.response.json();",
+									"pm.environment.set(\"account2\", responseData.account.accountId);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\" : \"{{userId2}}\",\n    \"accountDetails\" :  {\n            \"accountNumber\": \"{{$randomBankAccount}}\", // Encrypted\n            \"accountType\": \"{{$randomBankAccountName}}\",\n            \"balance\": {{$randomInt}},\n            \"limitations\": {\n                 \"withdrawalLimit\": {{$randomInt}},\n                \"transferLimit\": {{$randomInt}},\n                \"otherLimitations\": \"No Limit\"\n\n            },\n            \"securityTags\": [],\n            \"details\": {\n                \"IBAN\" : \"{{$randomBankAccountIban}}\"\n            }// Encrypted string of sensitive data\n        }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/account",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"account"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transaction",
+			"item": [
+				{
+					"name": "addTransactionUser1ToUser2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseData = pm.response.json();",
+									"pm.environment.set(\"txId\", responseData.txId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accountId\": \"{{account1}}\", // Reference to the Account Document of the transaction \n   \"amount\": {{$randomInt}},\n   \"type\": \"credit\", // e.g., 'debit', 'credit'\n   \"details\": {\n\n   },\n   \"referenceData\": {\n       \"receiver\": {\n            \"userId\" : \"{{userId2}}\",\n           \"accountId\" : \"{{account2}}\"\n       }\n   }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/transaction/{{userId1}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"transaction",
+								"{{userId1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTransaction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/transaction/{{txId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"transaction",
+								"{{txId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllTrx",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/transaction?accountId={{account1}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"transaction"
+							],
+							"query": [
+								{
+									"key": "accountId",
+									"value": "{{account1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:3030",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
