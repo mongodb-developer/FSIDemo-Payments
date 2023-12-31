@@ -185,6 +185,55 @@ async function add(userId, accountDetails) {
     //     if (session) session.endSession();
     // }
 }
+
+/*
+
+    * Updates the balance of an account by the provided amount.
+    *
+    * @param {string} userId - The ID of the user to whom the account belongs.
+    * @param {string} accountId - The ID of the account to update.
+    * @param {number} amount - The amount to update the account balance by.
+    * @param {Object} session - The MongoDB session object.
+    * @returns {Promise<Object>} - A promise that resolves to the updated account object.
+
+*/
+async function getAccountAndUpdateBalance(userId, accountId, amount, session) {
+
+    try {
+        // Get the encrypted collection for accounts
+        const { collection } = await dbService.getEncryptedCollection('accounts', serviceName, encryptedFieldsMap);
+        
+
+       
+        // Update the account balance
+        const toUpdate = { $inc : {balance: amount} }
+        console.log('updating account balance by: ', amount)
+        
+        let updatedAccount = await collection.findOneAndUpdate({ _id: new ObjectId(accountId),
+             userId: new ObjectId(userId) }, toUpdate, { returnNewDocument: true });
+
+        console.log('old balance was: ', updatedAccount.balance + amount)
+
+        if (!updatedAccount) throw new Error(`Cannot update account ${accountId}`)
+        
+        // Add the user details to the account object
+        console.log('new balance is: ', updatedAccount.balance)
+        if (updatedAccount && updatedAccount.userId) {
+            const user = await userService.getById(updatedAccount.userId);
+            updatedAccount.user = { username: user.username };
+        }
+
+        return updatedAccount;
+    }
+
+    catch (err) {
+
+        logger.error(`account.service.js-getAccountAndUpdateBalance: while finding account ${accountId}`, err);
+        throw err;
+    }
+}
+
+
 /*
     * Builds a MongoDB query object based on provided filter criteria.
     * 
@@ -194,12 +243,15 @@ async function add(userId, accountDetails) {
 
 function _buildCriteria(filterBy) {
     let criteria = {}
-    if (filterBy.byUserId) criteria.userId = filterBy.userId
+    if (filterBy.userId) criteria.userId = new ObjectId(filterBy.userId)
     else{
 
         throw new Error('Cannot filter accounts without a user ID')
     }
+    delete filterBy.userId
     criteria = { ...criteria, ...filterBy }
+
+
 
     return criteria
 }
@@ -209,6 +261,7 @@ module.exports = {
     remove,
     getById,
     getByAccNumber,
+    getAccountAndUpdateBalance,
     add
 }
 

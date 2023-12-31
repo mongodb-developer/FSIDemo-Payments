@@ -109,8 +109,8 @@ async function validateTrasactionInitiate(sender, receiver, amount) {
     if (sender.accountId === receiver.accountId) throw new Error('sender and receiver cannot be the same');
 
     // Retrieve accounts for sender and receiver
-    const senderAccount = await accountService.getById(sender.accountId);
-    const receiverAccount = await accountService.getById(receiver.accountId);
+    const senderAccount = await accountService.getAccountAndUpdateBalance(sender.userId, sender.accountId, -amount)
+    const receiverAccount = await accountService.getAccountAndUpdateBalance(receiver.userId, receiver.accountId, amount)
 
     // Ensure both accounts exist
     if (!senderAccount) throw new Error(`sender ${sender._id} account not found`);
@@ -169,7 +169,7 @@ function getDistrebutionSteps(type) {
 async function add(userId, transaction) {
     try {
         // Retrieve the encrypted 'transactions' collection
-        const { collection, session } = await dbService.getEncryptedCollection('transactions', serviceName, encryptedFieldsMap);
+        const { collection/*, session */} = await dbService.getEncryptedCollection('transactions', serviceName, encryptedFieldsMap);
         
         // Fetch the user initiating the transaction
         const user = await userService.getById(userId);
@@ -219,12 +219,12 @@ async function add(userId, transaction) {
         };
 
         // Insert the transaction into the collection
-        const addedTransaction = await collection.insertOne(transaction, { session });
+        const addedTransaction = await collection.insertOne(transaction/*, { session }*/);
         transaction.txId = addedTransaction.insertedId;
 
         // Update the user's transaction history
         const users = await dbService.getEncryptedCollection('users', serviceName);
-        await userService.addTransaction(userId, transaction, users.collection, session);
+        await userService.addTransaction(userId, transaction, users.collection/*, session*/);
 
         // Clean up sensitive data before returning
         delete transaction.referenceData.sender.accountNumber;
@@ -232,12 +232,13 @@ async function add(userId, transaction) {
 
         return transaction;
     } catch (err) {
+        logger.error(`transaction.service.js-add: cannot insert transaction`, err);
+        throw err;
         // Abort the transaction in case of an error
         if (session && session.inTransaction()) {
             await session.abortTransaction();
         }
-        logger.error(`transaction.service.js-add: cannot insert transaction`, err);
-        throw err;
+       
     }
 }
 
