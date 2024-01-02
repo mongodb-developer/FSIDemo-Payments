@@ -6,7 +6,7 @@ async function checkRunning(req, res) {
         const test = await isRunning();
         res.send({running : test});
     } catch (err) {
-        logger.error(`payment.controller.js-isRunning: Failed to get isRunning`, err);
+        logger.error(`notification.controller.js-isRunning: Failed to get isRunning`, err);
         res.status(500).send({ err: 'Failed to get isRunning' });
     }
 }
