@@ -47,8 +47,8 @@ The Stack is :
     - account_management 
     - transaction_management
     - payment_management
-- Setup KMS
-- Setup Kafka Confluent
+- Setup KMS (Optional)
+- Setup Kafka Confluent (Optional)
 
 ### Install
 
@@ -69,7 +69,7 @@ Setup the .env file:
 # Shared Library file path for queryable encryption
 SHARED_LIB_PATH="<FULL_PATH_TO_LIB>"
 
-# AWS Credentials
+# AWS Credentials - Optional
 
 AWS_ACCESS_KEY_ID="<Your AWS access key ID>"
 AWS_SECRET_ACCESS_KEY="<Your AWS secret access key>"
