@@ -338,7 +338,7 @@ async function refund(transactionId) {
             sender: transaction.referenceData.receiver
         }
 
-        const { senderAccount, receiverAccount } = await validateTrasactionInitiate(sender, receiver, transaction.amount);
+        const { senderAccount, receiverAccount } = await validateTrasactionInitiate(transaction.referenceData.sender, transaction.referenceData.receiver, transaction.amount);
 
       
         cleanTransaction(transaction);
