@@ -93,6 +93,9 @@ TRANSACTION_MANAGEMENT_PWD=...
 PAYMENT_MANAGEMENT_USR=...
 PAYMENT_MANAGEMENT_PWD=...
 
+NOTIFICATION_MANAGEMENT_USR=...
+NOTIFICATION_MANAGEMENT_PWD=...
+
 ```
 
 Setup database configuration under `config/dev.js`:
@@ -118,7 +121,7 @@ Load `Payments.postman_collection.json` and run the sequence.
 
 ### Web UI
 
-Go to http:/localhost:3030/app
+Go to http://localhost:3030/app
 
 ## Desclaimer
 
