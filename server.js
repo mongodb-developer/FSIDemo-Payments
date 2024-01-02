@@ -16,20 +16,30 @@ app.use(cors({
     credentials: true // enable set cookie
 }));
 
+// public serve from ./public
+
+app.use('/app',express.static(path.join(__dirname, 'public')));
+
 // Import routes
 const userRoutes = require('./api/user/user.routes');
 const accountRoutes = require('./api/account/account.routes');
 const transactionRoutes = require('./api/transaction/transaction.routes');
 const paymentRoutes = require('./api/payment/payment.routes');
+const notificationRoutes = require('./api/notification/notification.routes');
 
 // Setting up routes
 app.use('/api/user', userRoutes); // User related routes
 app.use('/api/account', accountRoutes); // Account related routes
 app.use('/api/transaction', transactionRoutes); // Transaction related routes
 app.use('/api/payment', paymentRoutes); // Payment related routes
+app.use('/api/notification', notificationRoutes); // Notification related routes
 
 // Logger service for logging messages
 const logger = require('./services/logger.service');
+
+const socketService = require('./services/socket.service');
+     // Initial socket connection
+socketService.setupSocketAPI(http);
 
 // Server port configuration
 const port = process.env.PORT || 3030;

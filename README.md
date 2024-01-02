@@ -118,7 +118,7 @@ Load `Payments.postman_collection.json` and run the sequence.
 
 ### Web UI
 
-N/A yet
+Go to http:/localhost:3030/app
 
 ## Desclaimer
 

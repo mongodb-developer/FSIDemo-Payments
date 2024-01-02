@@ -5,6 +5,8 @@ const ObjectId = require('mongodb').ObjectId
 const serviceName = 'TRANSACTION_MANAGEMENT'
 const userService = require('../user/user.service')
 const accountService = require('../account/account.service')
+const notificationService = require('../notification/notification.service')
+const { getTransaction } = require('./transaction.controller')
 
 const encryptedFieldsMap = {
     encryptedFields: {
@@ -58,6 +60,7 @@ async function query(filterBy) {
         const { collection } = await dbService.getEncryptedCollection('transactions', serviceName);
         
         // Query the collection and convert the result to an array
+        console.log('criteria', criteria);
         const transactions = await collection.find(criteria).toArray();
 
         return transactions;
@@ -183,7 +186,7 @@ async function add(userId, transaction) {
 
         // Validate the transaction initiation
         const { receiver } = transaction.referenceData;
-        const sender = { "userId": user._id, "accountId": transaction.accountId };
+        const sender = transaction.sender ? transaction.sender : { "userId": user._id, "accountId": transaction.accountId };
         const { senderAccount, receiverAccount } = await validateTrasactionInitiate(sender, receiver, transaction.amount);
 
         // Update transaction with receiver and sender details
@@ -233,11 +236,12 @@ async function add(userId, transaction) {
         return transaction;
     } catch (err) {
         logger.error(`transaction.service.js-add: cannot insert transaction`, err);
-        throw err;
+        
         // Abort the transaction in case of an error
         if (session && session.inTransaction()) {
             await session.abortTransaction();
         }
+        throw err;
        
     }
 }
@@ -246,6 +250,7 @@ function cleanTransaction(transaction) {
    delete transaction.referenceData.sender.accountNumber;
     delete transaction.referenceData.receiver.accountNumber;
     delete transaction.details;
+    delete transaction['__safeContent__'];
 
     return transaction;
 }
@@ -281,8 +286,16 @@ async function update(transactionId, steps) {
             transaction = cleanTransaction(transaction);
 
             // Update users with  transaction details
-            await userService.addTransaction(receiver.userId, transaction)
-            await userService.addTransaction(sender.userId, transaction)
+            await Promise.all([userService.addTransaction(receiver.userId, transaction),userService.addTransaction(sender.userId, transaction)]);
+            const senderNotification = {
+                username: sender.name,
+                data: `You have sent $${transaction.amount} to ${receiver.name} with status ${transaction.status}`,
+            }
+            const receiverNotification = {
+                username: receiver.name,
+                data: `You have received $${transaction.amount} from ${sender.name} with status ${transaction.status}`,
+            }
+            await notificationService.sendNotification([senderNotification, receiverNotification]);
             
             
 
@@ -295,6 +308,56 @@ async function update(transactionId, steps) {
     } catch (err) {
         // Log and throw the error for further handling
         logger.error(`transaction.service.js-update: cannot update transaction ${transactionId}`, err);
+        throw err;
+    }
+}
+
+/**
+ transaction refund
+**/
+
+async function refund(transactionId) {
+
+    try {
+
+        // Retrieve the encrypted 'transactions' collection
+        const { collection } = await dbService.getEncryptedCollection('transactions', serviceName);
+
+        // get transaction
+        const transaction = await getById(transactionId);
+
+        // Prepare the object to be saved
+        delete transaction._id;
+        transaction.type = 'refund';
+        transaction.status = 'pending';
+        transaction.steps = getDistrebutionSteps(transaction.type);
+        transaction.date = Date.now();
+        transaction.amount = transaction.amount * -1;
+        transaction.referenceData = {
+            receiver: transaction.referenceData.sender,
+            sender: transaction.referenceData.receiver
+        }
+
+        const { senderAccount, receiverAccount } = await validateTrasactionInitiate(sender, receiver, transaction.amount);
+
+      
+        cleanTransaction(transaction);
+
+        // Insert the transaction into the collection
+        const addedTransaction = await collection.insertOne(transaction);
+        transaction.txId = addedTransaction.insertedId;
+
+        await collection.updateOne({ _id: new ObjectId(transactionId) }, { $set : { relatedTransactions : [{
+            txId: transaction.txId,
+            type: transaction.type,
+            date: transaction.date
+        }] } });
+
+
+        // Prepare the object to be saved
+    } catch (err) {
+        // Log and throw the error for further handling
+        logger.error(`transaction.service.js-refund: cannot refund transaction ${transactionId}`, err);
         throw err;
     }
 }
@@ -312,11 +375,11 @@ function _buildCriteria(query) {
         criteria.date = { $gte: new Date(query.dateFrom), $lte: new Date(query.dateTo) };
     }
     //referenceData queries
-    if (query.senderAccountNumber) {
-        criteria['referenceData.sender.accountNumber'] = query.senderAccountNumber;
+    if (query.userId) {
+        criteria['referenceData.sender.userId'] = query.userId;
     }
-    if (query.receiverAccountNumber) {
-        criteria['referenceData.receiver.accountNumber'] = query.receiverAccountNumber;
+    if (query.accountId) {
+        criteria['accountId'] = query.accountId;
     }
 
     return criteria;
@@ -328,7 +391,8 @@ module.exports = {
     query,
     getById,
     add,
-    update
+    update,
+    refund
 }
 
 

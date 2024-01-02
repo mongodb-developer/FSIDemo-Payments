@@ -2,6 +2,8 @@ const logger = require('./logger.service')
 
 var gIo = null
 
+let userSockets = new Map();
+
 function setupSocketAPI(http) {
     gIo = require('socket.io')(http, {
         cors: {
@@ -10,113 +12,46 @@ function setupSocketAPI(http) {
     })
     gIo.on('connection', socket => {
         logger.info(`New connected socket [id: ${socket.id}]`)
+
         socket.on('disconnect', socket => {
             logger.info(`Socket disconnected [id: ${socket.id}]`)
-        })
-        socket.on('set-wap-room', room => {
-            if (socket.myRoom === room) return
-            if (socket.myRoom) {
-                socket.leave(socket.myRoom)
-                logger.info(`Socket is leaving room ${socket.myRoom} [id: ${socket.id}]`)
+            console.log('socket disconnected', socket.userId)
+            if (socket.userId) {
+                userSockets.delete(socket.userId);
             }
-            socket.join(room)
-            socket.myRoom = room
-        })
-        socket.on('update-wap', wap => {
-            broadcast({
-                type: 'updated-wap',
-                data: wap,
-                room: socket.myRoom,
-                userId: socket.id,
-            })
-        })
-        socket.on('update-mouse-pos', mousePos => {
-            broadcast({
-                type: 'mouse-move',
-                data: mousePos,
-                room: socket.myRoom,
-                userId: socket.id,
-            })
-        })
-        socket.on('guest-msg', ({ guestMsg, to }) => {
-            console.log('GUEST MSG FROM socket id', socket.id, 'socket.userId:', socket.userId, 'TO OWNER', to)
-            console.log('GUEST MSG', guestMsg)
-            logger.info(`New chat msg from socket [id: ${socket.id}], emitting to ${to}`)
-            // emits to all sockets:
-            // gIo.emit('chat addMsg', msg)
-            // emits only to sockets in the same room
-            // gIo.to(socket.myRoom).emit('guest-add-msg', msg)
-            emitToUser({
-                type: 'guest-add-msg',
-                data: [guestMsg[0], { by: 'customer', txt: `${guestMsg[1]}`, date: new Date().getTime() }],
-                userId: to,
-            })
-        })
-        socket.on('user-watch', userId => {
-            logger.info(`user-watch from socket [id: ${socket.id}], on user ${userId}`)
-            socket.join('watching:' + userId)
-        })
-
-        socket.on('owner-msg', ({ ownerMsg, to }) => {
-            console.log('OWNER MSG FROM socket id', socket.id, 'socket.userId:', socket.userId, 'TO GUEST', to)
-            console.log(ownerMsg)
-            logger.info(`New chat msg from socket [id: ${socket.id}], emitting to ${to}`)
-            gIo.sockets.to(to).emit('owner-add-msg', { by: 'owner', txt: `${ownerMsg}`, date: new Date().getTime() })
         })
 
         socket.on('set-user-socket', userId => {
             logger.info(`Setting socket.userId = ${userId} for socket [id: ${socket.id}]`)
             socket.userId = userId
+            userSockets.set(String(userId), socket);
             // socket.id = userId
-            console.log('userId:', userId)
-        })
+            console.log('Set socket userId:', userId)
+        }
+
+        )
+
         socket.on('unset-user-socket', () => {
             logger.info(`Removing socket.userId for socket [id: ${socket.id}]`)
             delete socket.userId
-        })
+        }
 
-        socket.on('send-subscription', ({ email, to }) => {
-            logger.info(`New subscription from socket [id:${socket.id}]`)
-            console.log(to)
-            console.log(email)
-            emitToUser({
-                type: 'add-subscription',
-                data: email,
-                userId: to,
-            })
-        })
+        )
 
-        socket.on('send-lead', ({ data, to }) => {
-            logger.info(`New lead from socket [id:${socket.id}]`)
+        socket.on('add-notification', ({ data, to }) => {
+            logger.info(`New notification from socket [id:${socket.id}]`)
             console.log(to)
             console.log(data)
             emitToUser({
-                type: 'add-lead',
+                type: 'add-notification',
                 data,
                 userId: to,
-            })
-        })
-
-        socket.on('send-schedule', ({ data, to }) => {
-            logger.info(`New appointment from socket [id:${socket.id}]`)
-            console.log(to)
-            console.log(data)
-            emitToUser({
-                type: 'add-schedule',
-                data,
-                userId: to,
-            })
-        })
-
-        socket.on('user-at-editor', wapId => {
-            if (socket.currWap === wapId) return
-            if (socket.currWap) {
-                socket.leave(socket.wapId)
             }
-            socket.join(wapId)
-            socket.currWap = wapId
+            
+            )   
         })
     })
+
 }
 
 function emitTo({ type, data, label }) {
@@ -125,14 +60,11 @@ function emitTo({ type, data, label }) {
 }
 
 async function emitToUser({ type, data, userId }) {
-    userId = userId.toString() || userId
     // const socket = await _getUserSocket(userId)
-    const sockets = await _getAllSockets()
-    const socket = sockets.find(s => {
-        console.log(s.id, userId)
-        return s.userId == userId
-    })
-    // console.log(socket, 'SOCKET')
+
+   const socket = userSockets.get(String(userId));
+ 
+    
     if (socket) {
         console.log('SENDING')
         console.log(`Emiting event: ${type} to user: ${userId} socket [id: ${socket.id}]`)

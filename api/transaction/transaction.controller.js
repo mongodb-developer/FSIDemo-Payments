@@ -61,6 +61,16 @@ async function deleteTransaction(req, res) {
     }
 }
 
+async function refundTransaction(req, res) {
+    try {
+        const updatedTransaction = await transactionService.refund(req.params.id);
+        res.send(updatedTransaction);
+    } catch (err) {
+        logger.error(`transaction.controller.js-refundTransaction: Failed to refund transaction`, err);
+        res.status(500).send({ err: 'Failed to refund transaction' });
+    }
+}
+
 // Helper function to build query criteria from request parameters
 
 
@@ -69,5 +79,6 @@ module.exports = {
     getTransaction,
     addTransaction,
     updateTransaction,
-    deleteTransaction
+    deleteTransaction,
+    refundTransaction
 };

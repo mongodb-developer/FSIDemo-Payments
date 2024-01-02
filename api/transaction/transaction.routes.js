@@ -2,7 +2,8 @@ const express = require('express')
 // const { requireAuth, requireAdmin } = require('../../middlewares/requireAuth.middleware')
 const { log } = require('../../middlewares/logger.middleware')
 
-const { getTransactions, getTransaction, deleteTransaction, addTransaction, updateTransaction } = require('./transaction.controller')
+const { getTransactions, getTransaction, deleteTransaction, addTransaction, updateTransaction, refundTransaction } = require('./transaction.controller')
+const { refund } = require('./transaction.service')
 
 const router = express.Router()
 
@@ -12,8 +13,10 @@ const router = express.Router()
 router.get('/', getTransactions)
 router.get('/:id', getTransaction)
 router.post('/:userId', addTransaction)
-router.put('/:userId/:id', updateTransaction)
+router.put('/refund/:id', refundTransaction)
+router.put('/user/:userId/:id', updateTransaction)
 router.delete('/:userId/:id', deleteTransaction)
+
 
 
 // router.delete('/:id', requireAuth, requireAdmin, removeCar)

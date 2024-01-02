@@ -83,7 +83,7 @@ async function connect(service) {
         const dbURL = `mongodb+srv://${username}:${password}@${config.dbCluster}/${config.dbName}?retryWrites=true&w=majority`;
 
         // Connect to MongoDB with recommended options
-        const client = await MongoClient.connect(dbURL, { useNewUrlParser: true, useUnifiedTopology: true });
+        const client = await MongoClient.connect(dbURL);
         const db = client.db(config.dbName);
 
         // Store the connection for future reuse
