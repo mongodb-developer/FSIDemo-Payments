@@ -32,6 +32,7 @@ The Stack is :
 
 **Notification Microservices**
 - Kafka source : Notifications are being downstreamed to external systems and users via kafka
+- Change Streams: Notifications are being captured by change streams and pushed via Websockets
 - Full text search : Notifications are searchable for analysts via full text search.
 
 **Reports**
