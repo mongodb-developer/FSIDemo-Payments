@@ -68,11 +68,11 @@ async function getById(accountId) {
         const { collection } = await dbService.getEncryptedCollection('accounts', serviceName, encryptedFieldsMap);
         let account = await collection.findOne({ _id: new ObjectId(accountId) });
 
-        // Retrieve user information and add it to the account object
-        if (account && account.userId) {
-            const user = await userService.getById(account.userId);
-            account.user = { username: user.username };
-        }
+        // // Retrieve user information and add it to the account object
+        // if (account && account.userId) {
+        //     const user = await userService.getById(account.userId);
+        //     account.user = { username: user.username };
+        // }
 
         return account;
     } catch (err) {
@@ -130,7 +130,7 @@ async function remove(accountId) {
  * @param {Object} accountDetails - The details of the account to add.
  * @returns {Promise<Object>} - A promise that resolves to the saved account and updated user.
  */
-async function add(userId, accountDetails) {
+async function add(userId, username, accountDetails) {
     try {
         // Construct the new account object from the provided details
         const accountsToAdd = {
@@ -140,6 +140,9 @@ async function add(userId, accountDetails) {
             balance: accountDetails.balance,
             limitations: accountDetails.limitations,
             securityTags: accountDetails.securityTags,
+            user : {
+                username : username,
+            },
             encryptedDetails: accountDetails.details // Encrypted string of sensitive data
         };
 

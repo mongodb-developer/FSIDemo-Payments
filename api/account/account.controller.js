@@ -37,6 +37,24 @@ async function getAccount(req, res) {
     }
 }
 
+// /**
+//  * 
+//  * 
+//  * 
+//  */
+
+async function updateAccountBalance(req, res) {
+    try {
+        const { accountId, amount } = req.body;
+        const updatedAccount = await accountService.getAccountAndUpdateBalance(req.params.userId, accountId, amount);
+        res.send(updatedAccount);
+    } catch (err) {
+        logger.error(`account.controller.js-updateAccountBalance: Failed to update account balance`, err);
+        res.status(500).send({ err: 'Failed to update account balance' });
+    }
+}
+
+
 /**
  * Handles the HTTP request to delete an account based on the provided ID.
  * 
@@ -76,10 +94,10 @@ async function deleteAccount(req, res) {
 async function addAccount(req, res) {
     try {
         // Extract the user ID and account details from the request body
-        const { userId, accountDetails } = req.body;
+        const { userId,username, accountDetails } = req.body;
 
         // Add the account and update the user's linked accounts
-        const { savedAccount, updatedUser } = await accountService.add(userId, accountDetails);
+        const { savedAccount, updatedUser } = await accountService.add(userId,username, accountDetails);
 
         // Send the details of the saved account and the updated user back to the client
         res.send({ "account": savedAccount, "user": updatedUser });
@@ -96,6 +114,7 @@ async function addAccount(req, res) {
 module.exports = {
     getAccounts,
     getAccount,
+    updateAccountBalance,
     deleteAccount,
     addAccount
 }
