@@ -101,7 +101,7 @@ async function getByUsername(username) {
         console.log('username', username);
         const { collection } = await dbService.getEncryptedCollection('users', serviceName);
         const user = await collection.findOne({ "username": username });
-        console.log('found user', user.username);
+       // console.log('found user', user.username);
 
         // Remove sensitive data before returning
         return cleanUser(user);
@@ -263,11 +263,12 @@ async function addTransaction(userId, transaction, collection = undefined, sessi
 
         // If no matching transaction was found, add the new transaction to the beginning of the array
         if (updateOutcome.modifiedCount === 0) {
+            console.log(`adding new transaction ${transaction._id} for user ${userId}`)
             await collection.updateOne(
                 { _id: new ObjectId(userId) },
                 { $push: { recentTransactions: { $each: [transaction],
                                                         $sort: { date : -1 },
-                                                        $slice: -10 } } }, // Keeps only the latest 10 transactions
+                                                        $slice: 10 } } }, // Keeps only the latest 10 transactions
                 { session }
             );
         }

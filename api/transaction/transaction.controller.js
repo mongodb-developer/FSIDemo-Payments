@@ -61,6 +61,7 @@ async function deleteTransaction(req, res) {
     }
 }
 
+// Refund a transaction
 async function refundTransaction(req, res) {
     try {
         const updatedTransaction = await transactionService.refund(req.params.id);

@@ -215,16 +215,12 @@ async function getAccountAndUpdateBalance(userId, accountId, amount, session) {
         let updatedAccount = await collection.findOneAndUpdate({ _id: new ObjectId(accountId),
              userId: new ObjectId(userId) }, toUpdate, { returnNewDocument: true });
 
-        console.log('old balance was: ', updatedAccount.balance + amount)
+       
 
         if (!updatedAccount) throw new Error(`Cannot update account ${accountId}`)
         
         // Add the user details to the account object
-        console.log('new balance is: ', updatedAccount.balance)
-        if (updatedAccount && updatedAccount.userId) {
-            const user = await userService.getById(updatedAccount.userId);
-            updatedAccount.user = { username: user.username };
-        }
+        console.log(`new balance is for user ${updatedAccount.user.username} : `, updatedAccount.balance)
 
         return updatedAccount;
     }

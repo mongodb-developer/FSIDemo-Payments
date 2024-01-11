@@ -112,7 +112,7 @@ async function validateTrasactionInitiate(sender, receiver, amount) {
     if (sender.accountId === receiver.accountId) throw new Error('sender and receiver cannot be the same');
 
     // Retrieve accounts for sender and receiver
-    const senderAccount = await accountService.getAccountAndUpdateBalance(sender.userId, sender.accountId, -amount)
+    const senderAccount = await accountService.getAccountAndUpdateBalance(sender.userId, sender.accountId, -1 * amount)
     const receiverAccount = await accountService.getAccountAndUpdateBalance(receiver.userId, receiver.accountId, amount)
 
     // Ensure both accounts exist
@@ -293,7 +293,7 @@ async function update(transactionId, steps) {
             }
             const receiverNotification = {
                 username: receiver.name,
-                data: `You have received $${transaction.amount} from ${sender.name} with status ${transaction.status}`,
+                data: `You have received $${transaction.amount} as ${transaction.type} from ${sender.name} with status ${transaction.status}`,
             }
             await notificationService.sendNotification([senderNotification, receiverNotification]);
             
@@ -314,6 +314,10 @@ async function update(transactionId, steps) {
 
 /**
  transaction refund
+
+    * @param {string} transactionId - The ID of the transaction to update.
+
+    * @returns {Promise<void>} - A promise that resolves when the update operation is complete.
 **/
 
 async function refund(transactionId) {
@@ -332,7 +336,6 @@ async function refund(transactionId) {
         transaction.status = 'pending';
         transaction.steps = getDistrebutionSteps(transaction.type);
         transaction.date = Date.now();
-        transaction.amount = transaction.amount * -1;
         transaction.referenceData = {
             receiver: transaction.referenceData.sender,
             sender: transaction.referenceData.receiver
