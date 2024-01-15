@@ -66,13 +66,10 @@ async function query(filterBy) {
 async function getById(accountId) {
     try {
         const { collection } = await dbService.getEncryptedCollection('accounts', serviceName, encryptedFieldsMap);
+        console.log(`Using findOne to find account ${accountId}` );
         let account = await collection.findOne({ _id: new ObjectId(accountId) });
 
-        // // Retrieve user information and add it to the account object
-        // if (account && account.userId) {
-        //     const user = await userService.getById(account.userId);
-        //     account.user = { username: user.username };
-        // }
+
 
         return account;
     } catch (err) {
@@ -90,6 +87,7 @@ async function getById(accountId) {
 async function getByAccNumber(accountNumber) {
     try {
         const { collection } = await dbService.getEncryptedCollection('accounts', serviceName, encryptedFieldsMap);
+        console.log(`Using findOne to find account with number ${accountNumber}` );
         const account = await collection.findOne({ accountNumber });
 
         return account;
@@ -150,9 +148,11 @@ async function add(userId, username, accountDetails) {
         const { collection, session } = await dbService.getEncryptedCollection('accounts', serviceName, encryptedFieldsMap);
         
         // Start a new transaction
+        console.log('Starting transaction...');
         session.startTransaction();
 
         // Insert the new account into the collection
+        console.log('Inserting account...');
         const result = await collection.insertOne(accountsToAdd, { session });
 
         // Prepare the account data to be added to the user's linked accounts
@@ -206,12 +206,11 @@ async function getAccountAndUpdateBalance(userId, accountId, amount, session) {
         // Get the encrypted collection for accounts
         const { collection } = await dbService.getEncryptedCollection('accounts', serviceName, encryptedFieldsMap);
         
-
+        
        
         // Update the account balance
         const toUpdate = { $inc : {balance: amount} }
-        console.log('updating account balance by: ', amount)
-        
+        console.log(`Using findOneAndUpdate to update and retrieve balance for account ${accountId}` );
         let updatedAccount = await collection.findOneAndUpdate({ _id: new ObjectId(accountId),
              userId: new ObjectId(userId) }, toUpdate, { returnNewDocument: true });
 
@@ -219,9 +218,7 @@ async function getAccountAndUpdateBalance(userId, accountId, amount, session) {
 
         if (!updatedAccount) throw new Error(`Cannot update account ${accountId}`)
         
-        // Add the user details to the account object
-        console.log(`new balance is for user ${updatedAccount.user.username} : `, updatedAccount.balance)
-
+      
         return updatedAccount;
     }
 

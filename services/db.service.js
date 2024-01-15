@@ -54,7 +54,6 @@ async function getEncryptedCollection(collectionName, service, encryptedFieldsMa
 
     // Optional logging for debugging purposes
     console.log(`getEncryptedCollection: collectionName: ${collectionName}`);
-    if (session) console.log(`getEncryptedCollection: session: ${session.id}`);
 
     return { collection, session };
 }
@@ -119,7 +118,7 @@ async function encryptedConnect(service, encryptionConfig, encryptedFieldsMap) {
         // Set up encryption configuration
         const keyVaultNamespace = `${encryptionConfig.keyVaultDatabaseName}.${encryptionConfig.keyVaultCollectionName}`;
         const kmsProviderCredentials = qeHelper.getKMSProviderCredentials(encryptionConfig.kmsProviderName);
-
+        console.log(`Setting up auto encryption options fror service ${service}`)
         // Retrieve auto encryption options
         const autoEncryptionOptions = await qeHelper.getAutoEncryptionOptions(
             encryptionConfig.kmsProviderName,

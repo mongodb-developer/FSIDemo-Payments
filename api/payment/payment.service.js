@@ -30,13 +30,14 @@ async function listenToTransactions() {
                 const transaction = next.fullDocument;
 
                 // Perform initial processing steps for the transaction
-                const steps = transaction.steps.map(step => {
-                    console.log(`performing step ${step.api}`);
+                const steps = transaction.steps.map((step) => {
+                    console.log(`As part of payment for transaction ${transaction.txId}, performing step ${step.api}`);
+                    // mock sleep
+              
                     return { completed: true, api: step.api, response: { status: 'success' } };
                 });
 
                 // Update the transaction after performing steps
-                console.log(steps);
                 logger.info('payment.service.js-listenToTransactions: updating transaction', transaction._id);
                 transactionService.update(transaction._id, steps);
             }

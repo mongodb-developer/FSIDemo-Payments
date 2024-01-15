@@ -80,6 +80,7 @@ async function query(filterBy = {}) {
 async function getById(userId) {
     try {
         const { collection } = await dbService.getEncryptedCollection('users', serviceName, encryptedFieldsMap);
+        console.log(`Using findOne to find user ${userId}` );
         const user = await collection.findOne({ _id: new ObjectId(userId) });
 
         // Remove sensitive data before returning
@@ -100,6 +101,7 @@ async function getByUsername(username) {
     try {
         console.log('username', username);
         const { collection } = await dbService.getEncryptedCollection('users', serviceName);
+        console.log(`Using findOne to find user ${username}`)
         const user = await collection.findOne({ "username": username });
        // console.log('found user', user.username);
 
@@ -120,6 +122,7 @@ async function getByUsername(username) {
 async function getByEmail(email) {
     try {
         const { collection } = await dbService.getEncryptedCollection('users', serviceName);
+        console.log(`Using findOne to find user ${email}` );
         const user = await collection.findOne({ email });
 
         // Remove sensitive data before returning
@@ -138,6 +141,7 @@ async function getByEmail(email) {
 async function remove(userId) {
     try {
         const { collection } = await dbService.getCollection('users', serviceName);
+        console.log(`Using deleteOne to remove user ${userId}` );
         await collection.deleteOne({ _id: new ObjectId(userId) });
     } catch (err) {
         logger.error(`user.service.js-remove: cannot remove user ${userId}`, err);
@@ -168,6 +172,7 @@ async function add(user) {
         const { collection } = await dbService.getEncryptedCollection('users', serviceName, encryptedFieldsMap);
 
         // Insert the new user into the collection
+        console.log(`Using insertOne to add user ${user.username}` );
         await collection.insertOne(userToAdd);
 
         // Remove password before returning the user object
@@ -205,6 +210,7 @@ async function updateLinkedAccounts(userId, accountDetails, collection = undefin
             { $addToSet: { linkedAccounts: accountDetails } };
 
         // Update the user's linked accounts
+        console.log(`Using updateOne to update user ${userId}` );
         await collection.updateOne({ _id: new ObjectId(userId) }, updateQuery, { session });
 
         // Commit the transaction if one was started
@@ -249,6 +255,7 @@ async function addTransaction(userId, transaction, collection = undefined, sessi
 
         console.log(`adding transaction ${transaction._id} for user ${userId}`)
         //Check if only status update is needed
+        console.log(`Using updateOne to update recent transaction ${transaction._id} for user ${userId}` );
        const updateOutcome = await collection.updateOne(
             { 
                 _id: new ObjectId(userId),
@@ -263,7 +270,7 @@ async function addTransaction(userId, transaction, collection = undefined, sessi
 
         // If no matching transaction was found, add the new transaction to the beginning of the array
         if (updateOutcome.modifiedCount === 0) {
-            console.log(`adding new transaction ${transaction._id} for user ${userId}`)
+            console.log(`Using updateOne to add recent transaction ${transaction._id} for user ${userId}` );
             await collection.updateOne(
                 { _id: new ObjectId(userId) },
                 { $push: { recentTransactions: { $each: [transaction],

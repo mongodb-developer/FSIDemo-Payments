@@ -83,6 +83,7 @@ async function getById(transactionId) {
         const { collection } = await dbService.getEncryptedCollection('transactions', serviceName);
 
         // Find the transaction by its ObjectId
+        console.log(`Using findOne to find transaction ${transactionId}` );
         const transaction = await collection.findOne({ _id: new ObjectId(transactionId) });
 
         return transaction;
@@ -222,6 +223,7 @@ async function add(userId, transaction) {
         };
 
         // Insert the transaction into the collection
+        console.log('Inserting transaction...');
         const addedTransaction = await collection.insertOne(transaction/*, { session }*/);
         transaction.txId = addedTransaction.insertedId;
 
@@ -277,6 +279,7 @@ async function update(transactionId, steps) {
             // Update the status to 'completed' if all steps are completed
             transactionToSave.status = 'completed';
             //update reciever user
+
             let transaction = await collection.findOne({ _id: new ObjectId(transactionId) });
             const receiver = transaction.referenceData.receiver;
             const sender = transaction.referenceData.sender;
@@ -286,6 +289,8 @@ async function update(transactionId, steps) {
             transaction = cleanTransaction(transaction);
 
             // Update users with  transaction details
+
+            
             await Promise.all([userService.addTransaction(receiver.userId, transaction),userService.addTransaction(sender.userId, transaction)]);
             const senderNotification = {
                 username: sender.name,
@@ -302,6 +307,7 @@ async function update(transactionId, steps) {
         }
 
         // Update the transaction in the collection
+        console.log(`Using updateOne to update transaction ${transactionId}` );
         await collection.updateOne({ _id: new ObjectId(transactionId) }, { $set: transactionToSave });
 
         // Note: The session is not used here for the transaction, remove if unnecessary
@@ -343,13 +349,15 @@ async function refund(transactionId) {
 
         const { senderAccount, receiverAccount } = await validateTrasactionInitiate(transaction.referenceData.sender, transaction.referenceData.receiver, transaction.amount);
 
-      
+        
         cleanTransaction(transaction);
 
         // Insert the transaction into the collection
         const addedTransaction = await collection.insertOne(transaction);
         transaction.txId = addedTransaction.insertedId;
 
+        // Update the user's transaction history
+        console.log(`Using updateOne to update transaction ${transactionId} relatedTransactions`)
         await collection.updateOne({ _id: new ObjectId(transactionId) }, { $set : { relatedTransactions : [{
             txId: transaction.txId,
             type: transaction.type,

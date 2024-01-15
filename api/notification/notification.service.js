@@ -21,6 +21,7 @@ async function listenToNotification() {
         // Retrieve the 'notification' collection
         const { collection } = await dbService.getCollection('notifications', serviceName);
         // Start watching the collection for changes
+        console.log('listening to notification')
         const changeStream = collection.watch([], { resumeAfter: resumeToken });
         isWatchRunning = true;
 
