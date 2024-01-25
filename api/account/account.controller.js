@@ -37,11 +37,38 @@ async function getAccount(req, res) {
     }
 }
 
-// /**
-//  * 
-//  * 
-//  * 
-//  */
+
+/**
+    * Handles the HTTP request to get a list of accounts based on search parameters.
+    * 
+    * @param {Object} req - The HTTP request object, containing search parameters.
+    * @param {Object} res - The HTTP response object used for sending responses.
+    */
+ 
+
+async function searchAccounts(req, res) {
+    try {
+        // Retrieve accounts using the search parameters provided in the request
+        const accounts = await accountService.search(req.query.text);
+
+        // Send the retrieved accounts back to the client
+        res.send(accounts);
+    } catch (err) {
+        // Log the error for debugging and analysis purposes
+        logger.error(`account.controller.js-searchAccounts: Cannot search accounts`, err);
+
+        // Send a generic error message to the client
+        res.status(500).send({ err: 'Failed to search accounts' });
+    }
+}
+
+/**
+ * Handles the HTTP request to update the balance of an account based on the provided user ID, account ID and amount.
+ *  
+ * @param {Object} req - The HTTP request object, containing the user ID, account ID and amount in the body.
+ * @param {Object} res - The HTTP response object used for sending responses.
+ */
+
 
 async function updateAccountBalance(req, res) {
     try {
@@ -116,5 +143,6 @@ module.exports = {
     getAccount,
     updateAccountBalance,
     deleteAccount,
-    addAccount
+    addAccount,
+    searchAccounts
 }

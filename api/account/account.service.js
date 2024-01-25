@@ -189,6 +189,74 @@ async function add(userId, username, accountDetails) {
     // }
 }
 
+
+/**
+ *  Search accounts by autocomplete aggregation $search query
+ * 
+ *  @param {string} txt - The text to search for.
+ * @returns {Promise<Array>} - A promise that resolves to an array of usernames .
+ * 
+ */
+
+async function search(txt) {
+
+    try {
+        
+        // Get the  collection for accounts
+        const { collection } = await dbService.getCollection('accounts', serviceName);
+        let searchStage = {
+           
+        }
+
+        // Build the search stage based on the provided text
+        
+
+        let pipeline = [
+            {
+                $limit: 10
+            },
+            {
+                $project: {
+                    _id: 1,
+                    username: "$user.username",
+                    "account" : "$accountType",
+                    "userId" : "$userId",
+                    "accountId" : "$_id"
+                }
+            }
+        ]
+        if (txt) {
+            searchStage = {
+                $search: {
+                    index: 'default',
+                    autocomplete: {
+                        query: txt,
+                        path: 'user.username',
+                        fuzzy: {
+                            maxEdits: 2
+                        }
+                    }
+                }
+            }
+            pipeline.unshift(searchStage)
+        }
+        else{
+            pipeline.unshift({
+                $match: {
+                    "user.username": { $exists: true }
+                }
+            })
+        }
+        // Build the aggregation pipeline
+        const results = await collection.aggregate(pipeline).toArray();
+
+        return results;
+    } catch (err) {
+        logger.error(`account.service.js-search: cannot search accounts`, err);
+        throw err;
+    }
+}
+
 /*
 
     * Updates the balance of an account by the provided amount.
@@ -210,7 +278,7 @@ async function getAccountAndUpdateBalance(userId, accountId, amount, session) {
        
         // Update the account balance
         const toUpdate = { $inc : {balance: amount} }
-        console.log(`Using findOneAndUpdate to update and retrieve balance for account ${accountId}` );
+        console.log(`Using findOneAndUpdate to update and retrieve balance for account ${accountId} and userId ${userId}` );
         let updatedAccount = await collection.findOneAndUpdate({ _id: new ObjectId(accountId),
              userId: new ObjectId(userId) }, toUpdate, { returnNewDocument: true });
 
@@ -254,6 +322,7 @@ function _buildCriteria(filterBy) {
 
 module.exports = {
     query,
+    search,
     remove,
     getById,
     getByAccNumber,
