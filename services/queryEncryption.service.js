@@ -140,6 +140,8 @@ const logger = require('./logger.service');
   }
 }
 
+
+
  async function getAutoEncryptionOptions(
   kmsProviderName,
   keyVaultNamespace,

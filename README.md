@@ -23,6 +23,7 @@ The Stack is :
 - Kafka Streaming Sink : Data being streamed from external sources
 - Transactions (User to Account references) : Keeping account and user data ACID compliant
 - In-Use Encryption
+- Full text search : Account ids and usernames are searchable for users to pick via full text search.
 
 
 **Transactions & Payments Microservices**
@@ -33,7 +34,7 @@ The Stack is :
 **Notification Microservices**
 - Kafka source : Notifications are being downstreamed to external systems and users via kafka
 - Change Streams: Notifications are being captured by change streams and pushed via Websockets
-- Full text search : Notifications are searchable for analysts via full text search.
+
 
 **Reports**
 - Materialized Views : Materialized views are built to preprocess and clear sensitive data for reporting
@@ -48,7 +49,7 @@ The Stack is :
 ```
 atlas customDbRoles create user_management_role --privilege FIND@FSI.users,FIND@_encrypt,INSERT@FSI.users,INSERT@_encrypt,REMOVE@FSI.users,REMOVE@_encrypt,UPDATE@FSI.users,UPDATE@_encrypt,UPDATE@FSI.accounts,BYPASS_DOCUMENT_VALIDATION@FSI.users,BYPASS_DOCUMENT_VALIDATION@_encrypt,CREATE_COLLECTION@FSI.users,CREATE_COLLECTION@_encrypt,CREATE_COLLECTION@FSI,CREATE_INDEX@FSI.users,CREATE_INDEX@_encrypt,CREATE_INDEX@FSI,DROP_COLLECTION@FSI.users,DROP_COLLECTION@_encrypt,DROP_COLLECTION@FSI,CHANGE_STREAM@FSI.users,CHANGE_STREAM@_encrypt,DROP_DATABASE@_encrypt,RENAME_COLLECTION_SAME_DB@_encrypt,LIST_COLLECTIONS@FSI
       
-atlas customDbRoles create account_management_role --privilege FIND@FSI.accounts,FIND@_encrypt,INSERT@FSI.accounts,INSERT@_encrypt,REMOVE@FSI.accounts,REMOVE@_encrypt,UPDATE@FSI.accounts,UPDATE@_encrypt,UPDATE@FSI.users,BYPASS_DOCUMENT_VALIDATION@FSI.accounts,BYPASS_DOCUMENT_VALIDATION@_encrypt,CREATE_COLLECTION@FSI.accounts,CREATE_COLLECTION@_encrypt,CREATE_COLLECTION@FSI,CREATE_INDEX@FSI.accounts,CREATE_INDEX@_encrypt,CREATE_INDEX@FSI,DROP_COLLECTION@FSI.accounts,DROP_COLLECTION@_encrypt,CHANGE_STREAM@FSI.accounts,CHANGE_STREAM@_encrypt,COLL_MOD@FSI.accounts,COLL_MOD@_encrypt,COMPACT@FSI.accounts,COMPACT@_encrypt,CONVERT_TO_CAPPED@FSI.accounts,CONVERT_TO_CAPPED@_encrypt,DROP_INDEX@FSI.accounts,DROP_INDEX@_encrypt,RE_INDEX@FSI.accounts,RE_INDEX@_encrypt,COLL_STATS@FSI.accounts,COLL_STATS@_encrypt,DB_HASH@FSI.accounts,DB_HASH@_encrypt,LIST_INDEXES@FSI.accounts,LIST_INDEXES@_encrypt,VALIDATE@FSI.accounts,VALIDATE@_encrypt,ENABLE_PROFILER@_encrypt,DROP_DATABASE@_encrypt,RENAME_COLLECTION_SAME_DB@_encrypt,DB_STATS@_encrypt,LIST_COLLECTIONS@_encrypt,LIST_COLLECTIONS@FSI
+atlas customDbRoles create account_management_role --privilege FIND@FSI.accounts,FIND@_encrypt,INSERT@FSI.accounts,INSERT@_encrypt,REMOVE@FSI.accounts,REMOVE@_encrypt,UPDATE@FSI.accounts,UPDATE@_encrypt,UPDATE@FSI.users,BYPASS_DOCUMENT_VALIDATION@FSI.accounts,BYPASS_DOCUMENT_VALIDATION@_encrypt,CREATE_COLLECTION@FSI.accounts,CREATE_COLLECTION@_encrypt,CREATE_COLLECTION@FSI,CREATE_INDEX@FSI.accounts,CREATE_INDEX@_encrypt,CREATE_INDEX@FSI,DROP_COLLECTION@FSI.accounts,DROP_COLLECTION@_encrypt,CHANGE_STREAM@FSI.accounts,CHANGE_STREAM@_encrypt,COLL_MOD@FSI.accounts,COLL_MOD@_encrypt,COMPACT@FSI.accounts,COMPACT@_encrypt,CONVERT_TO_CAPPED@FSI.accounts,CONVERT_TO_CAPPED@_encrypt,DROP_INDEX@FSI.accounts,DROP_INDEX@_encrypt,RE_INDEX@FSI.accounts,RE_INDEX@_encrypt,COLL_STATS@FSI.accounts,COLL_STATS@_encrypt,DB_HASH@FSI.accounts,DB_HASH@_encrypt,LIST_INDEXES@FSI.accounts,LIST_INDEXES@_encrypt,VALIDATE@FSI.accounts,VALIDATE@_encrypt,ENABLE_PROFILER@_encrypt,DROP_DATABASE@_encrypt,RENAME_COLLECTION_SAME_DB@_encrypt,DB_STATS@_encrypt,LIST_COLLECTIONS@_encrypt,LIST_COLLECTIONS@FSI,readWrite@FSI
 
 atlas customDbRoles create transaction_management --privilege FIND@FSI.transactions,FIND@_encrypt,INSERT@FSI.transactions,INSERT@_encrypt,REMOVE@FSI.transactions,REMOVE@_encrypt,UPDATE@FSI.transactions,UPDATE@_encrypt,UPDATE@FSI.users,BYPASS_DOCUMENT_VALIDATION@FSI.transactions,BYPASS_DOCUMENT_VALIDATION@_encrypt,CREATE_COLLECTION@FSI.transactions,CREATE_COLLECTION@_encrypt,CREATE_COLLECTION@FSI,CREATE_INDEX@_encrypt,CREATE_INDEX@FSI,ENABLE_PROFILER@_encrypt,DROP_DATABASE@_encrypt,RENAME_COLLECTION_SAME_DB@_encrypt,DB_STATS@_encrypt,LIST_COLLECTIONS@_encrypt,LIST_COLLECTIONS@FSI
 
@@ -56,6 +57,7 @@ atlas customDbRoles create payment_management_role --privilege CHANGE_STREAM@FSI
 
 atlas customDbRoles create notification_management_role --privilege FIND@FSI.notifications,INSERT@FSI.notifications,REMOVE@FSI.notifications,UPDATE@FSI.notifications,BYPASS_DOCUMENT_VALIDATION@FSI.notifications,CREATE_COLLECTION@FSI.notifications,CREATE_INDEX@FSI.notifications,CHANGE_STREAM@FSI.notifications
 ```
+
 create users and associate with the relevant custom role.
 
     - user_management

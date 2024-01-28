@@ -63,7 +63,7 @@ async function listenToNotification() {
     } catch (err) {
         // Log error if the stream setup fails
         logger.error('notification.service.js-listenToNotification: cannot find notification', err);
-        //throw err;
+        throw err;
     }
 }
 

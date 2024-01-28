@@ -20,12 +20,36 @@ const encryptedFieldsMap = {
     }
 };
 
+// Full text index specification
+const atlasSearchIndex = {
+    "mappings": {
+      "dynamic": false,
+      "fields": {
+        "user": {
+          "fields": {
+            "username": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "autocomplete"
+              }
+            ]
+          },
+          "type": "document"
+        }
+      }
+    }
+  }
+
 async function preWarmConnection(){
     try {
         await Promise.all([dbService.getEncryptedCollection('accounts', serviceName, encryptedFieldsMap), userService.preWarmConnection()])
+        await dbService.getCollection('accounts', serviceName, atlasSearchIndex);
         logger.info(`account.service.js-preWarmConnection: pre-warmed accounts`);
     } catch (err) {
         logger.error('account.service.js-preWarmConnection: cannot pre-warm accounts', err);
+        throw err;
     }
 }
 

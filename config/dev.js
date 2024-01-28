@@ -1,4 +1,4 @@
 module.exports = {
-    dbCluster : '<CLUSTER>',
+    dbCluster : 'payments.bh1bg.mongodb.net',
     dbName : 'FSI'
 }

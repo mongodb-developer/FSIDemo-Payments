@@ -38,6 +38,7 @@ async function preWarmConnection(){
         logger.info(`transaction.service.js-preWarmConnection: pre-warmed transactions`);
     } catch (err) {
         logger.error('transaction.service.js-preWarmConnection: cannot pre-warm transactions', err);
+        throw err;
     }
 }
 

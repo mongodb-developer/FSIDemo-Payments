@@ -52,7 +52,7 @@ async function listenToTransactions() {
     } catch (err) {
         // Log error if the stream setup fails
         logger.error('payment.service.js-listenToTransactions: cannot find transactions', err);
-        //throw err;
+        throw err;
     }
 }
 

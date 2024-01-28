@@ -28,6 +28,7 @@ async function preWarmConnection() {
         logger.info(`user.service.js-preWarmConnection: pre-warmed users`);
     } catch (err) {
         logger.error('user.service.js-preWarmConnection: cannot pre-warm users', err);
+        throw err;
     }
 }
 

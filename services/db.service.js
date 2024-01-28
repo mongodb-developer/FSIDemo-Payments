@@ -18,9 +18,9 @@ var encryptedDbConnections = {};
  * @param {string} service - The service identifier for the database connection.
  * @returns {Promise<{collection: Object, session: Object}>} - An object containing the collection and session.
  */
-async function getCollection(collectionName, service) {
+async function getCollection(collectionName, service, atlasSearchIndex) {
     // Connect to the database
-    const { db, session } = await connect(service);
+    const { db, session } = await connect(service, atlasSearchIndex,collectionName);
 
     // Retrieve the specified collection
     const collection = db.collection(collectionName);
@@ -36,7 +36,7 @@ async function getCollection(collectionName, service) {
  * @param {Object} encryptedFieldsMap - Map of fields to be encrypted.
  * @returns {Promise<{collection: Object, session: Object}>} - An object containing the encrypted collection and session.
  */
-async function getEncryptedCollection(collectionName, service, encryptedFieldsMap) {
+async function getEncryptedCollection(collectionName, service, encryptedFieldsMap, atlasSearchIndex) {
     // Define encryption configuration
     const encryptionConfig = {
         kmsProviderName: 'local',
@@ -47,7 +47,7 @@ async function getEncryptedCollection(collectionName, service, encryptedFieldsMa
     };
 
     // Connect to the encrypted database
-    const { db, session } = await encryptedConnect(service, encryptionConfig, encryptedFieldsMap);
+    const { db, session } = await encryptedConnect(service, encryptionConfig, encryptedFieldsMap, atlasSearchIndex);
 
     // Retrieve the specified encrypted collection
     const collection = db.collection(collectionName);
@@ -67,7 +67,7 @@ async function getEncryptedCollection(collectionName, service, encryptedFieldsMa
  * @param {string} service - The service identifier used to manage connections.
  * @returns {Promise<{db: Object, session: Object}>} - An object containing the database instance and session.
  */
-async function connect(service) {
+async function connect(service, atlasSearchIndex, collectionName) {
     // Check if a connection already exists for the service and return it if present
     if (dbConnections[service]) {
         const session = dbConnections[service].startSession();
@@ -84,6 +84,18 @@ async function connect(service) {
         // Connect to MongoDB with recommended options
         const client = await MongoClient.connect(dbURL);
         const db = client.db(config.dbName);
+
+        // create index for atlas search
+        if (atlasSearchIndex) {
+            const index = {
+                name: "default",
+                definition: atlasSearchIndex
+                }
+            
+            // run the helper method
+            const result = await db.collection(collectionName).createSearchIndex(index);
+            logger.info(`Created Atlas Search Index: ${result}`);
+        }
 
         // Store the connection for future reuse
         dbConnections[service] = client;
@@ -155,6 +167,8 @@ async function encryptedConnect(service, encryptionConfig, encryptedFieldsMap) {
 
         // Create encrypted collection
         await qeHelper.createEncryptedCollection(clientEncryption, newEncDB, encryptionConfig.encryptedCollectionName, encryptionConfig.kmsProviderName, encryptedFieldsMap);
+
+ 
 
         // Store the connection and return it
         encryptedDbConnections[service] = encClient;
