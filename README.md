@@ -86,7 +86,7 @@ Setup the .env file:
 ## Encrytion
 
 # Shared Library file path for queryable encryption
-SHARED_LIB_PATH="<FULL_PATH_TO_LIB>"
+SHARED_LIB_PATH="<FULL_PATH_TO_LIB>" # Download here https://www.mongodb.com/docs/manual/core/queryable-encryption/reference/shared-library/#std-label-qe-reference-shared-library-download
 
 # AWS Credentials - Optional
 
