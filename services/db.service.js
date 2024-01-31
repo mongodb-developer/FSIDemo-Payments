@@ -87,6 +87,7 @@ async function connect(service, atlasSearchIndex, collectionName) {
 
         // create index for atlas search
         if (atlasSearchIndex) {
+        try {
             const index = {
                 name: "default",
                 definition: atlasSearchIndex
@@ -95,7 +96,10 @@ async function connect(service, atlasSearchIndex, collectionName) {
             // run the helper method
             const result = await db.collection(collectionName).createSearchIndex(index);
             logger.info(`Created Atlas Search Index: ${result}`);
+        } catch (err) {
+            logger.warn(`db.service.js-connect: Cannot Create Atlas Search Index for ${service}`, err);
         }
+    }
 
         // Store the connection for future reuse
         dbConnections[service] = client;
