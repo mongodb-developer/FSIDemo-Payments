@@ -24,6 +24,8 @@ async function getTransaction(req, res) {
     }
 }
 
+
+
 // Add a new transaction
 async function addTransaction(req, res) {
     try {
@@ -35,6 +37,20 @@ async function addTransaction(req, res) {
     } catch (err) {
         logger.error(`transaction.controller.js-addTransaction: Failed to add transaction`, err);
         res.status(500).send({ err: 'Failed to add transaction' });
+    }
+}
+
+// Add an external transaction
+async function addExternalTransaction(req, res) {
+    try {
+        const transaction = req.body;
+        const userId = req.params.userId;
+
+        const savedTransaction = await transactionService.addExternalTransaction(userId, transaction);
+        res.send(savedTransaction);
+    } catch (err) {
+        logger.error(`transaction.controller.js-addExternalTransaction: Failed to add external transaction`, err);
+        res.status(500).send({ err: 'Failed to add external transaction' });
     }
 }
 
@@ -79,6 +95,7 @@ module.exports = {
     getTransactions,
     getTransaction,
     addTransaction,
+    addExternalTransaction,
     updateTransaction,
     deleteTransaction,
     refundTransaction

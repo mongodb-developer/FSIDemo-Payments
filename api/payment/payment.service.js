@@ -39,7 +39,13 @@ async function listenToTransactions() {
 
                 // Update the transaction after performing steps
                 logger.info('payment.service.js-listenToTransactions: updating transaction', transaction._id);
-                transactionService.update(transaction._id, steps);
+                if (['outgoing','incoming', 'refund'].includes(transaction.type)) {
+                    transactionService.update(transaction._id, steps);
+                }
+                else if (transaction.type === 'external') {
+                    transactionService.updateExternal(transaction._id, steps, transaction.amount);
+                }
+
             }
         });
 

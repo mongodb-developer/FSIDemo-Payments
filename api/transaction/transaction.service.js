@@ -152,6 +152,14 @@ function getDistrebutionSteps(type) {
                 { completed: false, api: 'refundConfirmation', endpoint: '$external/fraudDetection', response: {} },
                 { completed: false, api: 'paymentStatus', endpoint: '$external/paymentStatus', response: {} }
             ];
+        case 'external':
+            // Steps for an external transaction
+            return [
+                { completed: false, api: 'externalRiskAnalysis', endpoint: '$external/riskAnalysis', response: {} },
+                { completed: false, api: 'externalVerification', endpoint: '$external/fraudDetection', response: {} },
+                { completed: false, api: 'externalPaymentConfirmation', endpoint: '$external/paymentConfirmation', response: {} },
+                { completed: false, api: 'externalPaymentStatus', endpoint: '$external/paymentStatus', response: {} }
+            ];
         default:
             // Default steps (similar to outgoing)
             return [
@@ -249,6 +257,95 @@ async function add(userId, transaction) {
     }
 }
 
+/**
+ This is the external transaction example document:
+ {
+    "_id": "5f2b5bcd12345a678d123456",
+    "transactionId": "9J1234567D8901234",
+    "amount": {
+        "total": "50.00",
+        "currency": "USD"
+    },
+    "paymentMethod": "PayPal",
+    "status": "Completed",
+    "payerInfo": {
+        "payerId": "AX12345BXC123456",
+        "email": "payer@example.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "shippingAddress": {
+            "line1": "123 Main St",
+            "city": "Anytown",
+            "state": "CA",
+            "postalCode": "12345",
+            "countryCode": "US"
+        }
+    },
+    "recipientInfo": {
+        "merchantId": "XYZ12345ABC67890"
+    },
+    "createdAt": "2024-03-12T08:00:00Z",
+    "updatedAt": "2024-03-12T10:00:00Z",
+    "customField": "Additional Information"
+}
+**/
+
+async function addExternalTransaction(userId, transaction) {
+    try {
+
+        // Retrieve the encrypted 'transactions' collection
+        const { collection/*, session */} = await dbService.getEncryptedCollection('transactions', serviceName, encryptedFieldsMap);
+
+        console.log("********* Start External Transaction *********")
+        // Fetch target user details 
+        const user = await userService.getById(userId);
+        if (!user) throw new Error(`user ${userId} not found`);
+
+        // Set initial transaction details
+        transaction.date = Date.now();
+        transaction.status = 'pending';
+        transaction.type = 'external';
+        transaction.steps = getDistrebutionSteps(transaction.type);
+
+        console.log("********* Validate External Transaction *********")
+       
+        // Validate the transaction initiation
+        const receiver = {
+            userId: user._id,
+            name: user.username,
+            accountId: new ObjectId(transaction.recipientInfo.merchantId)
+        }
+        // const externalSender = {
+        //     payerId: transaction.payerInfo.payerId,
+        //     email: transaction.payerInfo.email,
+        //     accountInfo: transaction.payerInfo
+        // }
+
+        transaction.referenceData = { 
+            receiver
+        }
+
+        console.log("********* Insert External Transaction *********" + JSON.stringify(transaction))
+
+        const addedTransaction = await collection.insertOne(transaction/*, { session }*/);
+        transaction.txId = addedTransaction.insertedId;
+
+        // Update the user's transaction history
+        const users = await dbService.getEncryptedCollection('users', serviceName);
+        await userService.addTransaction(userId, transaction, users.collection/*, session*/);
+
+        return transaction;
+    } catch (err) {
+        logger.error(`transaction.service.js-addExternalTransaction: cannot insert transaction`, err);
+
+        
+    }
+}
+
+
+
+
+
 function cleanTransaction(transaction) {
    delete transaction.referenceData.sender.accountNumber;
     delete transaction.referenceData.receiver.accountNumber;
@@ -319,6 +416,47 @@ async function update(transactionId, steps) {
     }
 }
 
+async function updateExternal(transactionId, steps, amount) {
+
+    try {
+
+        // Retrieve the encrypted 'transactions' collection
+        const { collection } = await dbService.getEncryptedCollection('transactions', serviceName);
+
+        // Prepare the object to be saved
+        let transactionToSave = { steps };
+
+        // Check if all steps are completed
+        const isCompleted = steps.every(step => step.completed);
+
+        if (isCompleted) {
+            
+            // Update the status to 'completed' if all steps are completed
+            transactionToSave.status = 'completed';
+            let transaction = await collection.findOne({ _id: new ObjectId(transactionId) });
+            //update reciever user
+            const receiverAccount = await accountService.getAccountAndUpdateBalance(transaction.referenceData.receiver.userId, transaction.accountId, amount)
+
+            // Update users with  transaction details
+            await collection.updateOne({ _id: new ObjectId(transactionId) }, { $set: transactionToSave });
+            transaction = {...transaction, ...transactionToSave};
+            const receiverNotification = {
+                username: transaction.referenceData.receiver.name,
+                data: `You have received $${transaction.amount} to account ${receiverAccount.accountType}, origin: ${transaction.type} from ${transaction.payerInfo.email} with status ${transactionToSave.status}`,
+            }
+            // Update users object with transaction details
+            await Promise.all([userService.addTransaction(transaction.referenceData.receiver.userId, transaction)]);
+            // Send notification to receiver
+            await notificationService.sendNotification([receiverNotification]);
+
+        }
+    }
+    catch (err) {
+        // Log and throw the error for further handling
+        logger.error(`transaction.service.js-updateExternal: cannot update transaction ${transactionId}`, err);
+        throw err;
+    }
+}
 /**
  transaction refund
 
@@ -403,6 +541,8 @@ module.exports = {
     query,
     getById,
     add,
+    addExternalTransaction,
+    updateExternal, 
     update,
     refund
 }
