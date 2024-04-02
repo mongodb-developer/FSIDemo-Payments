@@ -76,6 +76,10 @@ Clone the repo:
 git clone https://github.com/mongodb-developer/FSIDemo-Payments.git
 ```
 
+Download your OS shared crypt library for FLE : Download here https://www.mongodb.com/docs/manual/core/queryable-encryption/reference/shared-library/#std-label-qe-reference-shared-library-download
+
+Unzip and place the library main file in an accessible route.
+
 Install the repo:
 ```
 npm install
