@@ -45,6 +45,7 @@ The Stack is :
 
 - Setup Atlas Cluster 7.0+
     - Setup users:
+      This code should be run with Atlas CLI : https://www.mongodb.com/docs/atlas/cli/stable/ after you auth against the relevant project
  Create custom roles:
 ```
 atlas customDbRoles create user_management_role --privilege FIND@FSI.users,FIND@_encrypt,INSERT@FSI.users,INSERT@_encrypt,REMOVE@FSI.users,REMOVE@_encrypt,UPDATE@FSI.users,UPDATE@_encrypt,UPDATE@FSI.accounts,BYPASS_DOCUMENT_VALIDATION@FSI.users,BYPASS_DOCUMENT_VALIDATION@_encrypt,CREATE_COLLECTION@FSI.users,CREATE_COLLECTION@_encrypt,CREATE_COLLECTION@FSI,CREATE_INDEX@FSI.users,CREATE_INDEX@_encrypt,CREATE_INDEX@FSI,DROP_COLLECTION@FSI.users,DROP_COLLECTION@_encrypt,DROP_COLLECTION@FSI,CHANGE_STREAM@FSI.users,CHANGE_STREAM@_encrypt,DROP_DATABASE@_encrypt,RENAME_COLLECTION_SAME_DB@_encrypt,LIST_COLLECTIONS@FSI
