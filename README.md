@@ -121,7 +121,7 @@ NOTIFICATION_MANAGEMENT_PWD=...
 
 ```
 
-Setup database configuration under `config/dev.js`:
+Setup database configuration under `config/dev.js` (eg. `dbCluster : cluster0.abcd.mongodb.net`):
 ```
 module.exports = {
     dbCluster : '<YOUR_CLUSTER_HOST>',
