@@ -54,7 +54,7 @@ atlas customDbRoles create account_management_role --privilege FIND@FSI.accounts
 
 atlas customDbRoles create transaction_management --privilege FIND@FSI.transactions,FIND@_encrypt,INSERT@FSI.transactions,INSERT@_encrypt,REMOVE@FSI.transactions,REMOVE@_encrypt,UPDATE@FSI.transactions,UPDATE@_encrypt,UPDATE@FSI.users,BYPASS_DOCUMENT_VALIDATION@FSI.transactions,BYPASS_DOCUMENT_VALIDATION@_encrypt,CREATE_COLLECTION@FSI.transactions,CREATE_COLLECTION@_encrypt,CREATE_COLLECTION@FSI,CREATE_INDEX@_encrypt,CREATE_INDEX@FSI,ENABLE_PROFILER@_encrypt,DROP_DATABASE@_encrypt,RENAME_COLLECTION_SAME_DB@_encrypt,DB_STATS@_encrypt,LIST_COLLECTIONS@_encrypt,LIST_COLLECTIONS@FSI
 
-atlas customDbRoles create payment_management_role --privilege CHANGE_STREAM@FSI.transactions
+atlas customDbRoles create payment_management_role --privilege CHANGE_STREAM@FSI.transactions,FIND@FSI.transactions
 
 atlas customDbRoles create notification_management_role --privilege FIND@FSI.notifications,INSERT@FSI.notifications,REMOVE@FSI.notifications,UPDATE@FSI.notifications,BYPASS_DOCUMENT_VALIDATION@FSI.notifications,CREATE_COLLECTION@FSI.notifications,CREATE_INDEX@FSI.notifications,CHANGE_STREAM@FSI.notifications
 ```
@@ -81,6 +81,11 @@ Download your OS shared crypt library for FLE : Download here https://www.mongod
 
 Unzip and place the library main file in an accessible route. (eg. for github codespace use version `mongo_crypt_shared_v1-linux-x86_64-enterprise-ubuntu2004-*.tgz`)
 
+Verify permissions and that the OS does not block it. (In MAC OS the system will usually block the file and you will need to unblock via system settings)
+```
+chmod 755 <FULL_PATH_TO_LIB_FILE>
+```
+
 Install the repo:
 ```
 npm install
@@ -91,7 +96,7 @@ Setup the .env file:
 ## Encrytion
 
 # Shared Library file path for queryable encryption
-SHARED_LIB_PATH="<FULL_PATH_TO_LIB>" # Download here https://www.mongodb.com/docs/manual/core/queryable-encryption/reference/shared-library/#std-label-qe-reference-shared-library-download
+SHARED_LIB_PATH="<FULL_PATH_TO_LIB_FILE>" # Download here https://www.mongodb.com/docs/manual/core/queryable-encryption/reference/shared-library/#std-label-qe-reference-shared-library-download
 
 # AWS Credentials - Optional
 
@@ -102,23 +107,24 @@ AWS_KEY_ARN="<Your AWS key ARN>"
 
 
 # Microservices
+## !IMPORTANT: Fill in the created users
 
-USER_MANAGEMENT_USR=...
-USER_MANAGEMENT_PWD=...
+USER_MANAGEMENT_USR=
+USER_MANAGEMENT_PWD=
 
-ACCOUNT_MANAGEMENT_USR=...
-ACCOUNT_MANAGEMENT_PWD=...
-
-
-TRANSACTION_MANAGEMENT_USR=...
-TRANSACTION_MANAGEMENT_PWD=...
+ACCOUNT_MANAGEMENT_USR=
+ACCOUNT_MANAGEMENT_PWD=
 
 
-PAYMENT_MANAGEMENT_USR=...
-PAYMENT_MANAGEMENT_PWD=...
+TRANSACTION_MANAGEMENT_USR=
+TRANSACTION_MANAGEMENT_PWD=
 
-NOTIFICATION_MANAGEMENT_USR=...
-NOTIFICATION_MANAGEMENT_PWD=...
+
+PAYMENT_MANAGEMENT_USR=
+PAYMENT_MANAGEMENT_PWD=
+
+NOTIFICATION_MANAGEMENT_USR=
+NOTIFICATION_MANAGEMENT_PWD=
 
 ```
 
