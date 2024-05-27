@@ -79,7 +79,7 @@ git clone https://github.com/mongodb-developer/FSIDemo-Payments.git
 
 Download your OS shared crypt library for FLE : Download here https://www.mongodb.com/docs/manual/core/queryable-encryption/reference/shared-library/#std-label-qe-reference-shared-library-download
 
-Unzip and place the library main file in an accessible route.
+Unzip and place the library main file in an accessible route. (eg. for github codespace use version `mongo_crypt_shared_v1-linux-x86_64-enterprise-ubuntu2004-*.tgz`)
 
 Install the repo:
 ```
@@ -145,7 +145,7 @@ Load `Payments.postman_collection.json` and run the sequence.
 
 ### Web UI
 
-Go to http://localhost:3030/app
+Go to http://localhost:3030/app (or codespaces: `https://<some_name>-3030.app.github.dev/app`)
 
 ## Desclaimer
 
