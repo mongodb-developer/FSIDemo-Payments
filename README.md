@@ -1,6 +1,6 @@
 # MongoDB FSI Payments Demo
 
-This project is built to facilitate a MongoDB payments solution based on our MongoDB for [Payments](https://www.mongodb.com/use-cases/payments) vision:
+This project is built to facilitate a MongoDB payments solution: [Payments Modernization Accelerator](https://www.mongodb.com/solutions/solutions-library/payments-modernization) based on our MongoDB for [Payments](https://www.mongodb.com/use-cases/payments) vision:
 ![Overview](https://webimages.mongodb.com/_com_assets/cms/llcgrv7qgszjis2h7-image2.png?auto=format%252Ccompress)
 
 The Stack is :
